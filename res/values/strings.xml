@@ -4,9 +4,10 @@
     <string name="app_name">Info Android</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="dispositivo">ID: </string>
 	<string name="bateria">Nível de bateria: </string>
 	<string name="lat_long">Latitude e Longitude: </string>
-	<string name="operadora">Operadora</string>
-	<string name="sinal">Nível de sinal</string>
+	<string name="operadora">Operadora: </string>
+	<string name="sinal">Nível de sinal: </string>
 	<string name="bt_atualizar">Atualizar</string>
 </resources>
