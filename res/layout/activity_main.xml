@@ -28,10 +28,16 @@
             android:text="@string/bateria" />
 
         <TextView
-            android:id="@+id/lat_long"
+            android:id="@+id/lat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/lat_long" />
+            android:text="@string/lat" />
+        
+        <TextView
+            android:id="@+id/longi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/longi" />
 
         <TextView
             android:id="@+id/operadora"
