@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.res.Configuration;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.telephony.PhoneStateListener;
@@ -100,6 +101,8 @@ public class MainActivity extends Activity implements LocationListener,
 
 	// evento do botão atualizar, chamo o onResume para atualizar
 	public void atualizar(View view) {
+
+		tel.listen(MyListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 		onResume();
 	}
 
@@ -142,6 +145,7 @@ public class MainActivity extends Activity implements LocationListener,
 
 	// método que força a ligação do GPS sem a necessidade de intervenção do
 	// usuário
+	@SuppressWarnings("unused")
 	private void turnGPSOn() {
 		// se o gps está desligado, então ligo
 		provider = Settings.Secure.getString(getContentResolver(),
@@ -179,7 +183,13 @@ public class MainActivity extends Activity implements LocationListener,
 		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, this);
 		super.onResume();
 	}
+@Override
 
+//A LINHA ABAIXO FAZ A ACTIVITY NÃO REINICIAR QUANDO GIRAR, JUNTO COMO O UMA INSTRUÇÃO COMENTADA NO MANIFEST
+public void onConfigurationChanged(Configuration newConfig) {
+	// TODO Auto-generated method stub
+	super.onConfigurationChanged(newConfig);
+}
 	// os proximos 4 métodos são da classe LocationManager
 	@Override
 	public void onLocationChanged(Location location) {
