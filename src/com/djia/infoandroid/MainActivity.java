@@ -18,6 +18,7 @@ import android.content.IntentFilter;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
@@ -54,7 +55,8 @@ public class MainActivity extends Activity implements LocationListener,
 		tel.listen(MyListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 		// verifico se o GPS está ligado
 		if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			//os eventos do alert serão gerenciados pelo metodo onClick implementado pela classe
+			// os eventos do alert serão gerenciados pelo metodo onClick
+			// implementado pela classe
 			AlertDialog.Builder alerta = new AlertDialog.Builder(this);
 			alerta.setMessage("Deseja ativar GPS?");
 			alerta.setPositiveButton("Sim", this);
@@ -68,11 +70,12 @@ public class MainActivity extends Activity implements LocationListener,
 		// TODO Auto-generated method stub
 		switch (which) {
 		case DialogInterface.BUTTON_NEGATIVE:
-			ultimosValores();
+			valoresPadrão();
 			atualizaDados();
 			break;
 		case DialogInterface.BUTTON_POSITIVE:
-			//caso o botão sim foi clicado, abro a activity de configurações para o usuário ligar o gps
+			// caso o botão sim foi clicado, abro a activity de configurações
+			// para o usuário ligar o gps
 			Intent in = new Intent(
 					android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 			startActivityForResult(in, 1);
@@ -83,27 +86,38 @@ public class MainActivity extends Activity implements LocationListener,
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
-		//verifico se o GPS foi ativado, e se não, pego os ultimos valores conhecidos
+		// verifico se o GPS foi ativado, e se não, pego os ultimos valores
+		// conhecidos
 		if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			ultimosValores();
+			valoresPadrão();
 			atualizaDados();
 		}
 	}
 
-	public void ultimosValores() {
-		Criteria criteria = new Criteria();
-		provider = lm.getBestProvider(criteria, false);
-		// Retorna a localização com a data da última localização conhecida
-		Location location = lm.getLastKnownLocation(provider);
-		latitude = location.getLatitude();
-		longitude = location.getLongitude();
+	public void valoresPadrão() {
+		try {
+			Criteria criteria = new Criteria();
+			provider = lm.getBestProvider(criteria, false);
+			// Retorna a localização com a data da última localização conhecida
+			Location location = lm.getLastKnownLocation(provider);
+			latitude = location.getLatitude();
+			longitude = location.getLongitude();
+		} catch (Exception e) {
+			Log.d("ERRO_GPS", "Não foi possível pegar um ultimo valor");
+			latitude = -999;
+			longitude = -999;
+		}
 	}
 
 	// evento do botão atualizar, chamo o onResume para atualizar
 	public void atualizar(View view) {
-
 		tel.listen(MyListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-		onResume();
+		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			onResume();
+		} else {
+			atualizaDados();
+		}
+
 	}
 
 	// aqui obtenho o estado da bateria , o IMEI do dispositivo , a operadora, e
@@ -122,9 +136,14 @@ public class MainActivity extends Activity implements LocationListener,
 		TextView bat = (TextView) findViewById(R.id.bateria);
 		bat.setText("Nível de bateria: " + level + "%");
 		TextView lat = (TextView) findViewById(R.id.lat);
-		lat.setText("Latitude : " + latitude);
 		TextView longi = (TextView) findViewById(R.id.longi);
-		longi.setText("Longitude: " + longitude);
+		if (latitude == -999) {
+			lat.setText("Latitude : INDISPONÍVEL");
+			longi.setText("Longitude: INDISPONÍVEL");
+		} else {
+			lat.setText("Latitude : " + latitude);
+			longi.setText("Longitude: " + longitude);
+		}
 		TextView op = (TextView) findViewById(R.id.operadora);
 		op.setText("Operadora: " + operadora);
 		TextView sinal = (TextView) findViewById(R.id.sinal);
@@ -177,19 +196,20 @@ public class MainActivity extends Activity implements LocationListener,
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
-
 		// Aqui você define quando quer que as informações sejam atualizadas, no
 		// meu caso eu coloquei a cada 0 segundos ou 0 metros
 		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, this);
 		super.onResume();
 	}
-@Override
 
-//A LINHA ABAIXO FAZ A ACTIVITY NÃO REINICIAR QUANDO GIRAR, JUNTO COMO O UMA INSTRUÇÃO COMENTADA NO MANIFEST
-public void onConfigurationChanged(Configuration newConfig) {
-	// TODO Auto-generated method stub
-	super.onConfigurationChanged(newConfig);
-}
+	@Override
+	// A LINHA ABAIXO FAZ A ACTIVITY NÃO REINICIAR QUANDO GIRAR, JUNTO COMO O
+	// UMA INSTRUÇÃO COMENTADA NO MANIFEST
+	public void onConfigurationChanged(Configuration newConfig) {
+		// TODO Auto-generated method stub
+		super.onConfigurationChanged(newConfig);
+	}
+
 	// os proximos 4 métodos são da classe LocationManager
 	@Override
 	public void onLocationChanged(Location location) {
